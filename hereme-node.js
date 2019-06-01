@@ -7,15 +7,6 @@ var date = new Date();
 var year = date.getFullYear();
 var month = date.getMonth()+1
 var day = date.getDate();
-var hour = date.getHours();
-
-var hours = '';
-if (hour < 10) {
-	hours = '0'+hour;
-}
-
-
-
 if(month < 10){
 	month = "0"+month;
 }
@@ -26,7 +17,6 @@ if(day < 10){
 var today = year+""+month+""+day;
 
 console.log('today!!!!!z	',today)
-console.log('hours', hour)
 
 var apiUrl = 'http://api.openweathermap.org/data/2.5/weather?lat=37.52&lon=127&units=metric&appid=a0094dc08d23f6c30af994855c039e73';
 
@@ -34,13 +24,6 @@ var baseURL = 'http://api.openweathermap.org/data/2.5/weather';
 
 var API_KEY = 'FUyJph70P0YW0UHY5Ac9dqg08PRXqSoh05WS2SHPT%2FV0954wS1qpiR%2BdLt1djwmibD2O9QSwx1h%2FrLxEaWv%2FZg%3D%3D';
 var url = 'http://newsky2.kma.go.kr/service/SecndSrtpdFrcstInfoService2/ForecastTimeData';
-var queryParams = '?' + encodeURIComponent('ServiceKey') + '=' + API_KEY; /* Service Key*/
-queryParams += '&' + encodeURIComponent('base_date') + '=' + today
-queryParams += '&' + encodeURIComponent('base_time') + '=' + hours+'00'
-queryParams += '&' + encodeURIComponent('nx') + '=' + '61'
-queryParams += '&' + encodeURIComponent('ny') + '=' + '125'
-queryParams += '&' + encodeURIComponent('_type') + '=' + 'json'
-
 
 // default data is seoul
 var lat = '37.5667'; // 위도
@@ -51,27 +34,27 @@ var testUrl = baseURL + '' + lat +
 // Index
 app.get('/',
   function(req, res, next){
-	request({
-		url: url + queryParams,
-		method: 'GET'
-	}, function (error, response, body) {
-		var jsonBody = response.body;
-		
 		res.status(200);
-	  	res.json({success:true, message: 'data', 'body': JSON.parse(jsonBody) });
-	});
+	  	res.json({success:true, message: 'success' });
   }
 );
 
 app.get('/isHot/:nx/:ny',
   function(req, res, next){
+	var hour = date.getHours();
 
+	var hours = '';
+	if (hour < 10) {
+		hours = '0'+hour;
+	}
+	
 	var queryParams = '?' + encodeURIComponent('ServiceKey') + '=' + API_KEY; /* Service Key*/
 	queryParams += '&' + encodeURIComponent('base_date') + '=' + today
 	queryParams += '&' + encodeURIComponent('base_time') + '=' + hours+'00'
 	queryParams += '&' + encodeURIComponent('nx') + '=' + req.params.nx
 	queryParams += '&' + encodeURIComponent('ny') + '=' + req.params.ny
 	queryParams += '&' + encodeURIComponent('_type') + '=' + 'json'
+	console.log('queryParams::',url + queryParams)
 	request({
 		
 		url: url + queryParams,
@@ -86,7 +69,7 @@ app.get('/isHot/:nx/:ny',
   }
 )
 
-var port = 80;
+var port = 8080;
 app.listen(port, function(){
   console.log('listening on port:' + port);
 });
