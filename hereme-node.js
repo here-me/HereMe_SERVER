@@ -44,8 +44,9 @@ app.get('/temp/:nx/:ny',
 	  console.log(req.params.ny)
 
 	let url = makeUrl(req, res, req.params.nx, req.params.ny);
+	let reUrl = makeUrl(req.params.nx, req.params.ny);
 	request({
-		url: queryParams,
+		url: reUrl,
 		method: 'GET'
 	}, function (error, response, body) {
 		let stringBody = response.body;
