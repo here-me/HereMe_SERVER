@@ -43,7 +43,7 @@ app.get('/isHot/:nx/:ny',
   function(req, res, next){
 	var hour = date.getHours();
 
-	var hours = '';
+	var hours = hour;
 	if (hour < 10) {
 		hours = '0'+hour;
 	}
