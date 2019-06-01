@@ -51,19 +51,25 @@ app.get('/temp/:nx/:ny',
 	}, function (error, response, body) {
 		let stringBody = response.body;
 		let jsonData = JSON.parse(stringBody);
-		
-		let resArr = jsonData.response.body.items.item;
-		if(resArr !== undefined) {
-			for(var i=0; i<resArr.length; i++){
-				if(resArr[i].category === 'T1H'){
-					res.status(200);
-					res.json({success:true, message: 'ok', 'temperature': resArr[i].obsrValue });
-				}
-			}	
+		console.log(jsonData.response.body);
+		if(jsonData.response.body !== undefined) {
+			let resArr = jsonData.response.body.items.item;
+			if(resArr !== undefined) {
+				for(var i=0; i<resArr.length; i++){
+					if(resArr[i].category === 'T1H'){
+						res.status(200);
+						res.json({success:true, message: 'ok', 'temperature': resArr[i].obsrValue });
+					}
+				}	
+			} else {
+				res.status(200);
+				res.json({success:true, message: 'ok', 'temperature': 0 });
+			}
 		} else {
 			res.status(200);
 			res.json({success:true, message: 'ok', 'temperature': 0 });
 		}
+		
 	});
   }
 );
@@ -106,29 +112,30 @@ function(req, res, next){
 							// 현재 기온
 							if(resArr[i].category === 'T1H'){
 								friendInfo.push({'temp': resArr[i].obsrValue})
-								next;
-							} else if(resArr[i].category === 'RN1'){ // 1시간 강수량
-								friendInfo.push({'rain': resArr[i].obsrValue})
-								next;
-							}else if(resArr[i].category === 'REH'){ // 습도
-								friendInfo.push({'hum': resArr[i].obsrValue})
-								next;
+								
 							}
-						}				
+							if(resArr[i].category === 'RN1'){ // 1시간 강수량
+								friendInfo.push({'rain': resArr[i].obsrValue})
+								
+							}
+							if(resArr[i].category === 'REH'){ // 습도
+								friendInfo.push({'hum': resArr[i].obsrValue})
+								
+							}
+						}
 					} else {
 						friendInfo = {'temp':0}
 					}
 					console.log('화이팅...', friendInfo)
-					res.status(200);
-					res.json({success:true, message: 'ok', 'friends': friendInfo });
-					
 				}
 			});
 		}
 		// console.log('last arr', friendInfo)
 	});
-	
 	connection.end();
+	res.status(200);
+	res.json({success:true, message: 'ok', 'friends': friendInfo });
+	
 });
 
 var port = 80;
