@@ -27,7 +27,7 @@ app.get('/',
   }
 );
 
-app.get('/isHot/:nx/:ny',
+app.get('/temp/:nx/:ny',
   function(req, res, next){
 	var hour = date.getHours();
 
@@ -55,11 +55,12 @@ app.get('/isHot/:nx/:ny',
 		for(var i=0; i<resArr.length; i++){
 			if(resArr[i].category === 'T1H'){
 				console.log(resArr[i].obsrValue);
+				res.status(200);
+	  			res.json({success:true, message: 'ok', 'temperature': resArr[i].obsrValue });
 			}
 		}
 		
-		res.status(200);
-	  	res.json({success:true, message: 'data', 'body': jsonData });
+		
 	});
 	  
   }
