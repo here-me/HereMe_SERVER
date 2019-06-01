@@ -7,9 +7,17 @@ var date = new Date();
 var year = date.getFullYear();
 var month = date.getMonth()+1
 var day = date.getDate();
+var mysql      = require('mysql');
 
 let friendInfo = [];
 var tempId = 0;
+var pool  = mysql.createPool({
+	connectionLimit : 10,
+	host     : 'heredb.cuaqc0x9rrn0.ap-northeast-2.rds.amazonaws.com',
+	user     : 'sjkim',
+	password : 'awsdatabase!0',
+	database : 'hereme'
+});
 
 if(month < 10){
 	month = "0"+month;
@@ -79,62 +87,41 @@ app.get('/temp/:nx/:ny',
 	
 // });
 
-var mysql      = require('mysql');
-var connection = mysql.createConnection({
-  host     : 'heredb.cuaqc0x9rrn0.ap-northeast-2.rds.amazonaws.com',
-  user     : 'sjkim',
-  password : 'awsdatabase!0',
-  database : 'hereme'
-});
 
-app.get('/friendsh',
+
+app.get('/friends',
 function(req, res, next){
-	connection.connect();
-	connection.query('SELECT * from friends', function (error, results, fields) {
-		if (error) throw error;
 	
-		for(var l=0; l<results.length; l++){
-			// console.log(results[l].x)
-			let reUrl = makeUrl(results[l].x, results[l].y);
-			tempId = results[l].id
-			request({
-				url: reUrl,
-				method: 'GET'
-			}, function (error, response, body) {
-				let stringBody = response.body;
-				let jsonData = JSON.parse(stringBody);
-				
-				if(jsonData.response.body !== undefined) {
-					let resArr = jsonData.response.body.items.item;
-					
-					if(resArr !== undefined) {
-						for(var i=0; i<resArr.length; i++){
-							// 현재 기온
-							if(resArr[i].category === 'T1H'){
-								friendInfo.push({'temp': resArr[i].obsrValue})
-								
-							}
-							if(resArr[i].category === 'RN1'){ // 1시간 강수량
-								friendInfo.push({'rain': resArr[i].obsrValue})
-								
-							}
-							if(resArr[i].category === 'REH'){ // 습도
-								friendInfo.push({'hum': resArr[i].obsrValue})
-								
-							}
-						}
-					} else {
-						friendInfo = {'temp':0}
-					}
-					console.log('화이팅...', friendInfo)
+	pool.getConnection(function(err, connection) {
+		if (err) throw err; // not connected!
+		connection.query('SELECT * from friends', function (error, results, fields) {
+			if (error) throw error;
+			friendInfo = [];
+			for(var l=0; l<results.length; l++){
+				// 이름, 온도 강수 확률, 습도, 지역, 맑음 여부
+				//
+				let reUrl = makeUrl(results[l].x, results[l].y);
+				tempId = results[l].id
+				let person = { 
+					id: results[l].id, 
+					name: results[l].name, 
+					temp: results[l].temp, 
+					humi: results[l].humi, 
+					rain: results[l].rain, 
+					locate_name: results[l].locate_name, 
+					image_url: results[l].image_url,
+					isGood: results[l].rain < 60
 				}
-			});
-		}
-		// console.log('last arr', friendInfo)
+				friendInfo.push(person);
+				// TODO
+				// 추후 기상청 데이터에서 기상정보로 처리 필요.
+			}
+			res.status(200);
+			res.json({success:true, message: 'ok', 'friends': friendInfo });
+			console.log('last arr', friendInfo);
+		});
 	});
-	connection.end();
-	res.status(200);
-	res.json({success:true, message: 'ok', 'friends': friendInfo });
+	
 	
 });
 
