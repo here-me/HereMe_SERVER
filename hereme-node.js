@@ -27,6 +27,13 @@ app.get('/',
   }
 );
 
+app.get('/index*',
+  function(req, res, next){
+		res.status(200);
+	  	res.json({success:true, message: 'success' });
+  }
+);
+
 app.get('/temp/:nx/:ny',
   function(req, res, next){
 	var hour = date.getHours();
@@ -42,29 +49,35 @@ app.get('/temp/:nx/:ny',
 	queryParams += '&' + encodeURIComponent('nx') + '=' + req.params.nx
 	queryParams += '&' + encodeURIComponent('ny') + '=' + req.params.ny
 	queryParams += '&' + encodeURIComponent('_type') + '=' + 'json'
-	console.log('queryParams::',url + queryParams)
+	console.info('queryParams::',url + queryParams)
 	request({
 		
 		url: url + queryParams,
 		method: 'GET'
 	}, function (error, response, body) {
-		var stringBody = response.body;
+		let stringBody = response.body;
 		let jsonData = JSON.parse(stringBody);
-		
 		let resArr = jsonData.response.body.items.item;
 		for(var i=0; i<resArr.length; i++){
 			if(resArr[i].category === 'T1H'){
-				console.log(resArr[i].obsrValue);
 				res.status(200);
 	  			res.json({success:true, message: 'ok', 'temperature': resArr[i].obsrValue });
 			}
-		}
-		
-		
+		}	
 	});
-	  
   }
-)
+);
+
+app.post('/addfriend', 
+function(req, res, next){
+	
+});
+
+app.get('/friendsh',
+function(req, res, next){
+	res.status(200);
+	res.json({success:true, message: 'success' });
+});
 
 var port = 8080;
 app.listen(port, function(){
