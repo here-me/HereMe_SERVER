@@ -110,7 +110,7 @@ function(req, res, next){
 					rain: results[l].rain, 
 					locate_name: results[l].locate_name, 
 					image_url: results[l].image_url,
-					isGood: results[l].rain < 60
+					isGood: results[l].status
 				}
 				friendInfo.push(person);
 				// TODO
@@ -125,7 +125,7 @@ function(req, res, next){
 	
 });
 
-var port = 80;
+var port = 8080;
 app.listen(port, function(){
   console.log('listening on port:' + port);
 });
