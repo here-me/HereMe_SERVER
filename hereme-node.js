@@ -47,39 +47,36 @@ app.get('/index*',
 );
 
 app.get('/temp/:nx/:ny',
-  function(req, res, next){
-	  console.log(req.params.nx)
-	  console.log(req.params.ny)
-
-	let url = makeUrl(req, res, req.params.nx, req.params.ny);
-	let reUrl = makeUrl(req.params.nx, req.params.ny);
-	request({
-		url: reUrl,
-		method: 'GET'
-	}, function (error, response, body) {
-		let stringBody = response.body;
-		let jsonData = JSON.parse(stringBody);
-		console.log(jsonData.response.body);
-		if(jsonData.response.body !== undefined) {
-			let resArr = jsonData.response.body.items.item;
-			if(resArr !== undefined) {
-				for(var i=0; i<resArr.length; i++){
-					if(resArr[i].category === 'T1H'){
-						res.status(200);
-						res.json({success:true, message: 'ok', 'temperature': resArr[i].obsrValue });
-					}
-				}	
+  	function(req, res, next){
+		let url = makeUrl(req, res, req.params.nx, req.params.ny);
+		let reUrl = makeUrl(req.params.nx, req.params.ny);
+		request({
+			url: reUrl,
+			method: 'GET'
+		}, function (error, response, body) {
+			let stringBody = response.body;
+			let jsonData = JSON.parse(stringBody);
+			console.log(jsonData.response.body);
+			if(jsonData.response.body !== undefined) {
+				let resArr = jsonData.response.body.items.item;
+				if(resArr !== undefined) {
+					for(var i=0; i<resArr.length; i++){
+						if(resArr[i].category === 'T1H'){
+							res.status(200);
+							res.json({success:true, message: 'ok', 'temperature': resArr[i].obsrValue });
+						}
+					}	
+				} else {
+					res.status(200);
+					res.json({success:true, message: 'ok', 'temperature': 0 });
+				}
 			} else {
 				res.status(200);
 				res.json({success:true, message: 'ok', 'temperature': 0 });
 			}
-		} else {
-			res.status(200);
-			res.json({success:true, message: 'ok', 'temperature': 0 });
-		}
-		
-	});
-  }
+			
+		});
+	}
 );
 
 // app.post('/addfriend', 
@@ -110,7 +107,8 @@ function(req, res, next){
 					rain: results[l].rain, 
 					locate_name: results[l].locate_name, 
 					image_url: results[l].image_url,
-					isGood: results[l].status
+					isGood: results[l].status,
+					image_status: results[l].image_status
 				}
 				friendInfo.push(person);
 				// TODO
